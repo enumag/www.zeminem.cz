@@ -10,7 +10,6 @@ before_install:
   - npm install bower
 
 install:
-  - echo "zend_extension = xdebug.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - composer install --no-interaction --prefer-dist --no-progress
   - bower install
 
@@ -21,7 +20,7 @@ before_script:
   - php www/index.php -u root -n blog_mysql
 
 script:
-  - vendor/bin/tester tests -p php -s -c tests/php-unix.ini --coverage-src ./app --coverage ./shippable/codecoverage/coverage.html -o junit -l ./shippable/testresults
+  - vendor/bin/tester tests -p php -s -c tests/php-unix.ini -o junit -l ./shippable/testresults
 
 after_failure:
   - vendor/bin/tester tests -p php -s -c tests/php-unix.ini --info
