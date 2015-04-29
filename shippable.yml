@@ -20,4 +20,9 @@ before_script:
   - php www/index.php -u root -n blog_mysql
 
 script:
-  - vendor/bin/tester tests -p php -s -c tests/php.ini --coverage-src ./app --coverage ./shippable/codecoverage/coverage.html -o junit -l ./shippable/testresults
+  - vendor/bin/tester tests -p php -s -c tests/php-unix.ini --coverage-src ./app --coverage ./shippable/codecoverage/coverage.html -o junit -l ./shippable/testresults
+
+after_failure:
+  - vendor/bin/tester tests -p php -s -c tests/php-unix.ini --info
+  - cat app/config/config.local.neon;
+  - for i in $(find tests -name \*.actual); do echo "--- $i"; cat $i; echo; echo; done
