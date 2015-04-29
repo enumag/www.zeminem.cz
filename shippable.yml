@@ -12,6 +12,6 @@ before_install:
   - mysql -u root -e 'create database blog_mysql;'
   - composer selfupdate
   - composer install --no-interaction --prefer-dist --no-progress
-  - npm install -g bower
+  - npm install bower
   - bower install
   - php www/index.php -u root -n blog_mysql
