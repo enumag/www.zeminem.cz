@@ -20,7 +20,7 @@ before_script:
   - php www/index.php -u root -n blog_mysql
 
 script:
-  - vendor/bin/tester tests -p php -s -c tests/php-unix.ini -o junit > ./shippable/testresults/junit.xml
+  - vendor/bin/tester tests -p php -s -c tests/php-unix.ini --coverage ./shippable/codecoverage/coverage.xml -o junit > ./shippable/testresults/junit.xml
 
 after_failure:
   - vendor/bin/tester tests -p php -s -c tests/php-unix.ini --info
