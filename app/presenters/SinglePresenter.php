@@ -4,7 +4,6 @@ namespace App;
 
 use Model;
 use Nette;
-use Nette\Http\Url;
 
 class SinglePresenter extends BasePresenter {
 
@@ -41,33 +40,37 @@ class SinglePresenter extends BasePresenter {
 		if (!$post && !$page) { // pokud článek neexistuje (FALSE), pak forward - about, reference, atd...
 			$this->forward($webalized);
 		} elseif ($post) { // zobrazení klasických článků
-			$texy = $this->prepareTexy();
-			$this->template->post = $post;
-			$this->template->body = $texy->process($post->body);
+			if (!$this->isAjax()) {
+				$texy = $this->prepareTexy();
+				$this->template->post = $post;
+				$this->template->body = $texy->process($post->body);
+			}
 		} else { //PAGE
 			$this->setView('page');
 			$texy = $this->prepareTexy();
-			$texy->addHandler('phrase', function ($invocation, $phrase, $content, $modifier, $link) {
-				$el = $invocation->proceed();
-				if ($el instanceof \TexyHtml && $el->getName() === 'a') {
-					$url = new Url($el->attrs['href']);
-					$httpRequest = $this->presenter->getHttpRequest();
-					$uri = $httpRequest->getUrl();
-					if ($url->authority != $uri->host) {
-						$el->attrs['target'] = '_blank';
-					}
-				}
-				return $el;
-			});
 			$this->template->page = $page;
-			$body = $texy->process($page->body);
-			$this->template->body = $body;
+			$this->template->body = $texy->process($page->body);
 		}
 	}
 
 	/** @return \Cntrl\SignIn */
 	protected function createComponentSignInForm() {
 		return $this->signInFormFactory->create();
+	}
+
+	/**
+	 * @param $post_id
+	 */
+	public function handleGetNext($post_id) {
+		if ($this->isAjax()) {
+			$post = $this->posts->findOlder($post_id);
+			if ($post) {
+				$texy = $this->prepareTexy();
+				$this->template->post = $post;
+				$this->template->body = $texy->process($post->body);
+				$this->redrawControl('article');
+			}
+		}
 	}
 
 }

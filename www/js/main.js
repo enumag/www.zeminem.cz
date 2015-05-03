@@ -1,5 +1,16 @@
 $(function () {
 
+	//TODO: přebindování
+	//TODO: změna URL
+
+	$.nette.ext('regeneration', {
+		complete: function () {
+			$.nette.load();
+		}
+	});
+
+	$.nette.init();
+
 	var bodyEl = $('body');
 
 	$("h3[id|=toc]").each(function () {
@@ -14,7 +25,7 @@ $(function () {
 		}
 	});
 
-	bodyEl.on('click', 'a[target^="_new"]', function(e) {
+	bodyEl.on('click', 'a[target^="_new"]', function (e) {
 		var top = window.screenY + (window.outerHeight - 500) / 2;
 		var left = window.screenX + (window.outerWidth - 650) / 2;
 		window.open(this.href, 'newwindow', 'width=650, height=500, top=' + top + ', left=' + left);
@@ -58,6 +69,23 @@ $(function () {
 		check();
 	}
 
+	var loaded_articles = [];
+	var check_next = function () {
+		var load_next = $('.load_next');
+		if (load_next.size() > 0) {
+			var next_id = load_next.last().data('next-article');
+			console.log(next_id);
+			if ($.inArray(next_id, loaded_articles) == -1 && $(window).scrollTop() + $(window).height() > load_next.offset().top) {
+				loaded_articles[next_id] = next_id;
+				$.nette.ajax({
+					url: load_next.data('next-article-url')
+				});
+			}
+		}
+	};
+	$(window).scroll(check_next);
+	check_next();
+
 	// generuje URL na zaklade zadavaneho titulku
 	$('input[data-slug-to]').keyup(function () {
 		var slugId = $(this).data('slug-to');
@@ -67,7 +95,24 @@ $(function () {
 
 });
 
-var nodiac = { 'á': 'a', 'č': 'c', 'ď': 'd', 'é': 'e', 'ě': 'e', 'í': 'i', 'ň': 'n', 'ó': 'o', 'ř': 'r', 'š': 's', 'ť': 't', 'ú': 'u', 'ů': 'u', 'ý': 'y', 'ž': 'z' };
+var nodiac = {
+	'á': 'a',
+	'č': 'c',
+	'ď': 'd',
+	'é': 'e',
+	'ě': 'e',
+	'í': 'i',
+	'ň': 'n',
+	'ó': 'o',
+	'ř': 'r',
+	'š': 's',
+	'ť': 't',
+	'ú': 'u',
+	'ů': 'u',
+	'ý': 'y',
+	'ž': 'z'
+};
+
 /** Vytvoření přátelského URL
  * @param string řetězec, ze kterého se má vytvořit URL
  * @return string řetězec obsahující pouze čísla, znaky bez diakritiky, podtržítko a pomlčku

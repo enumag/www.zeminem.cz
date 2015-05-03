@@ -3,6 +3,7 @@
 namespace Model;
 
 use Doctrine;
+use Entity\Post;
 use Kdyby;
 use Nette;
 
@@ -18,12 +19,15 @@ class Posts extends Nette\Object {
 
 	/** @var \Kdyby\Doctrine\EntityDao */
 	private $dao;
+	/** @var Kdyby\Doctrine\EntityManager */
+	private $em;
 
 	/**
 	 * @param Kdyby\Doctrine\EntityDao $dao
 	 */
-	public function __construct(Kdyby\Doctrine\EntityDao $dao) {
+	public function __construct(Kdyby\Doctrine\EntityDao $dao, Kdyby\Doctrine\EntityManager $em) {
 		$this->dao = $dao;
+		$this->em = $em;
 	}
 
 	/**
@@ -156,6 +160,30 @@ class Posts extends Nette\Object {
 			->getQuery();
 		$resultSet = new Kdyby\Doctrine\ResultSet($query);
 		return $resultSet->applyPaging($offset, $limit)->getIterator(Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
+	}
+
+	/**
+	 * @param $post_id
+	 * @return mixed|null
+	 * @throws Doctrine\ORM\NonUniqueResultException
+	 * @throws Doctrine\ORM\ORMException
+	 * @throws Doctrine\ORM\OptimisticLockException
+	 * @throws Doctrine\ORM\TransactionRequiredException
+	 *
+	 * @Secure\Read(allow="guest")
+	 */
+	public function findOlder($post_id) {
+		$current_post = $this->em->find(Post::class, $post_id);
+		$query = $this->dao->select()
+			->where('? > date', $current_post->date)
+			->where('publish_date <= ?', new \DateTime())
+			->order('date DESC')
+			->limit(1);
+		try {
+			return $query->createQuery()->getSingleResult();
+		} catch (Doctrine\ORM\NoResultException $exc) {
+			return NULL;
+		}
 	}
 
 }

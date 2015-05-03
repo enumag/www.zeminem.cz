@@ -6,35 +6,37 @@
 {/block}
 
 {block content}
-	<div class="page-header text-center">
-		<h2 style="font-size:40px">
-			{block title}{$post->title|vlna}{/block}
-		</h2>
+	<div n:snippet="article" data-ajax-append>
+		<div class="page-header text-center">
+			<h2 style="font-size:40px">
+				{block title}{$post->title|vlna}{/block}
+			</h2>
 
-		<div style="white-space:nowrap;color:gray">{$post->date|dateInWords} ({$post->date|timeAgoInWords})</div>
-		<div class="text-center hidden-print" n:if="$user->isLoggedIn()">
-			<a n:href=":Admin:Admin:default $post->id">edit&nbsp;<span class="glyphicon glyphicon-edit"></span></a>
-		</div>
-		<div style="margin:10px">
-			{foreach $post->tags as $tag}
-				<a n:href="Search:default, $tag->name" style="text-decoration:none">
+			<div style="white-space:nowrap;color:gray">{$post->date|dateInWords} ({$post->date|timeAgoInWords})</div>
+			<div class="text-center hidden-print" n:if="$user->isLoggedIn()">
+				<a n:href=":Admin:Admin:default $post->id">edit&nbsp;<span class="glyphicon glyphicon-edit"></span></a>
+			</div>
+			<div style="margin:10px">
+				{foreach $post->tags as $tag}
+					<a n:href="Search:default, $tag->name" style="text-decoration:none">
 					<span class="label hidden-print" style="padding:5px 10px;margin: 2px;background: #{$tag->color}">
 						{$tag->name}
 					</span>
-				</a>
-			{/foreach}
-		</div>
-	</div>
-	<div class="row" style="margin-bottom: 10px">
-		<div class="col-lg-10 col-lg-offset-1">
-			<div class="article" id="columns">
-				{$body|noescape}
+					</a>
+				{/foreach}
 			</div>
+		</div>
+		<div class="row" style="margin-bottom: 10px">
+			<div class="col-lg-10 col-lg-offset-1">
+				<div class="article" id="columns">
+					{$body|noescape}
+				</div>
 
-			<div id="bottom" style="margin-top: 50px">
-				<hr class="hidden-print load_disqus">
+				<div id="bottom" style="margin-top: 50px">
+					<hr class="hidden-print load_disqus load_next" data-next-article="{$post->id}"
+					    data-next-article-url="{link getNext!, $post->id}">
 
-				<div class="share hidden-print text-center">
+					<div class="share hidden-print text-center">
 					<span class="label" style="background:#DF5138">
 						<i class="fa fa-google-plus"></i>
 						<a href="https://plus.google.com/share?url={link //this}" target="_new">Google+</a>
@@ -53,37 +55,39 @@
 						<a href="http://www.linkedin.com/shareArticle?mini=true&url={link //this}&title={$post->title}"
 						   target="_new">LinkedIn</a>
 					</span>
-				</div>
-
-				<hr>
-
-				<div class="alert alert-danger"
-				     n:if="!$post->disable_comments && $setting->show_comments && empty($setting->disqus_shortname)">
-					Please setup your disqus shortname in administration&hellip;
-				</div>
-				<div n:if="!$post->disable_comments && $setting->show_comments && !empty($setting->disqus_shortname)"
-				     class="hidden-print">
-					<div class="alert alert-info" style="margin-top: 20px">
-						<p>
-							V komentářích jsou povolené HTML tagy <code>&lt;a&gt;</code> <code>&lt;blockquote&gt;</code>
-							<code>&lt;code&gt;</code> <code>&lt;em&gt;</code> <code>&lt;strong&gt;</code> a
-							<a href="https://help.disqus.com/customer/portal/articles/466253-what-html-tags-are-allowed-within-comments"
-							   target="_blank">další</a>&hellip;
-						</p>
-						<p>
-							Kódy programů lze napsat pomocí <code>&lt;pre&gt;&lt;code&gt;alert('XSS');&lt;/code&gt;&lt;/pre&gt;</code>,
-							detekce jazyka se provede
-							<a href="https://help.disqus.com/customer/portal/articles/665057"
-							   target="_blank">automaticky</a>&hellip;
-						</p>
 					</div>
-					<div id="disqus_thread" style="padding-bottom: 30px"
-					     data-disqus-shortname="{$setting->disqus_shortname}"
-					     data-disqus-url="{link //this}"></div>
-					<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments
-							powered by Disqus.</a></noscript>
-					<a href="http://disqus.com" class="dsq-brlink">comments powered by <span
-								class="logo-disqus">Disqus</span></a>
+
+					<hr>
+
+					<div class="alert alert-danger"
+					     n:if="!$post->disable_comments && $setting->show_comments && empty($setting->disqus_shortname)">
+						Please setup your disqus shortname in administration&hellip;
+					</div>
+					<div n:if="!$post->disable_comments && $setting->show_comments && !empty($setting->disqus_shortname)"
+					     class="hidden-print">
+						<div class="alert alert-info" style="margin-top: 20px">
+							<p>
+								V komentářích jsou povolené HTML tagy <code>&lt;a&gt;</code> <code>
+									&lt;blockquote&gt;</code>
+								<code>&lt;code&gt;</code> <code>&lt;em&gt;</code> <code>&lt;strong&gt;</code> a
+								<a href="https://help.disqus.com/customer/portal/articles/466253-what-html-tags-are-allowed-within-comments"
+								   target="_blank">další</a>&hellip;
+							</p>
+							<p>
+								Kódy programů lze napsat pomocí <code>&lt;pre&gt;&lt;code&gt;alert('XSS');&lt;/code&gt;&lt;/pre&gt;</code>,
+								detekce jazyka se provede
+								<a href="https://help.disqus.com/customer/portal/articles/665057"
+								   target="_blank">automaticky</a>&hellip;
+							</p>
+						</div>
+						<div id="disqus_thread" style="padding-bottom: 30px"
+						     data-disqus-shortname="{$setting->disqus_shortname}"
+						     data-disqus-url="{link //this}"></div>
+						<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments
+								powered by Disqus.</a></noscript>
+						<a href="http://disqus.com" class="dsq-brlink">comments powered by <span
+									class="logo-disqus">Disqus</span></a>
+					</div>
 				</div>
 			</div>
 		</div>
